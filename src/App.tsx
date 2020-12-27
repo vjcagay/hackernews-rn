@@ -71,6 +71,27 @@ const App = () => {
             {item.url}
           </Text>
         )}
+        <View style={styles.itemMeta}>
+          <View style={styles.itemMetaItem}>
+            <Text style={[styles.itemMetaItemText, styles.itemMetaAuthor]}>{item.by}</Text>
+          </View>
+          {item.score && (
+            <View style={styles.itemMetaItem}>
+              <Text>
+                <Icon name="arrow-up" size={14} style={styles.itemMetaItemText} />
+                <Text style={styles.itemMetaItemText}>{item.score}</Text>
+              </Text>
+            </View>
+          )}
+          {item.descendants !== null && (
+            <View style={styles.itemMetaItem}>
+              <Text>
+                <Icon name="message-circle" size={14} style={styles.itemMetaItemText} />
+                <Text style={styles.itemMetaItemText}>{item.descendants}</Text>
+              </Text>
+            </View>
+          )}
+        </View>
       </TouchableOpacity>
     );
   };
@@ -134,6 +155,23 @@ const styles = StyleSheet.create({
   },
   itemUrl: {
     color: "rgba(0, 0, 0, 0.50)",
+    marginBottom: 4,
+  },
+  itemMeta: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  itemMetaItem: {
+    marginRight: 8,
+  },
+  itemMetaItemText: {
+    color: "rgba(0, 0, 0, 0.70)",
+  },
+  itemMetaAuthor: {
+    fontWeight: "600",
+  },
+  itemMetaIcon: {
+    marginHorizontal: 4,
   },
 });
 

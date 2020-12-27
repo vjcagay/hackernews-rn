@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { ActionSheetProvider, connectActionSheet, useActionSheet } from "@expo/react-native-action-sheet";
 
@@ -28,12 +28,17 @@ const App = () => {
         cancelButtonIndex: options.length - 1,
       },
       (buttonIndex) => {
-        if (buttonIndex !== options.length - 1) {
-          setStoryType(Object.keys(viewOptions)[buttonIndex] as StoryType);
+        const selectedStoryType = Object.keys(viewOptions)[buttonIndex] as StoryType;
+
+        if (buttonIndex !== options.length - 1 && storyType !== selectedStoryType) {
+          setLoading(true);
+          setStoryType(selectedStoryType);
         }
       },
     );
   };
+
+  const [loading, setLoading] = useState(true);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -42,8 +47,6 @@ const App = () => {
   const [stories, setStories] = useState<Story[]>([]);
 
   const getStories = async (view: StoryType) => {
-    setRefreshing(true);
-
     const result = await fetch(endpoints[view]);
     const itemIds: Stories = await result.json();
 
@@ -52,6 +55,7 @@ const App = () => {
     const items = await Promise.all(top20.map(async (itemId) => getStoryById(itemId)));
 
     setStories(items);
+    setLoading(false);
     setRefreshing(false);
     flatList.current?.scrollToOffset({ offset: 0 });
   };
@@ -96,6 +100,12 @@ const App = () => {
     );
   };
 
+  const Loading = () => (
+    <View style={styles.loading}>
+      <ActivityIndicator />
+    </View>
+  );
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.screen}>
@@ -105,14 +115,21 @@ const App = () => {
             <Icon name="chevron-down" size={32} />
           </TouchableOpacity>
         </View>
-        <FlatList
-          data={stories}
-          renderItem={ListItem}
-          keyExtractor={(story) => story.id.toString()}
-          refreshing={refreshing}
-          onRefresh={() => getStories(storyType)}
-          ref={(ref) => (flatList.current = ref)}
-        />
+        {loading ? (
+          <Loading />
+        ) : (
+          <FlatList
+            data={stories}
+            renderItem={ListItem}
+            keyExtractor={(story) => story.id.toString()}
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              getStories(storyType);
+            }}
+            ref={(ref) => (flatList.current = ref)}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -137,8 +154,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 32,
   },
-  scrollView: {
+  loading: {
     flex: 1,
+    justifyContent: "center",
   },
   item: {
     borderBottomColor: "rgba(0, 0, 0, 0.22)",

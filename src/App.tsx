@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Icon from "react-native-vector-icons/Feather";
 import { ActionSheetProvider, connectActionSheet, useActionSheet } from "@expo/react-native-action-sheet";
 
 import endpoints, { getStoryById } from "./endpoints";
@@ -80,6 +81,7 @@ const App = () => {
         <View style={styles.header}>
           <TouchableOpacity onPress={selectStoryType} style={styles.button}>
             <Text style={styles.buttonText}>{viewOptions[storyType]}</Text>
+            <Icon name="chevron-down" size={32} />
           </TouchableOpacity>
         </View>
         <FlatList
@@ -105,6 +107,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   button: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
